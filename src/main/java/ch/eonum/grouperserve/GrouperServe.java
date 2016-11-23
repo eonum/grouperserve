@@ -41,6 +41,17 @@ public class GrouperServe {
 	
 	public static void main(String[] args) {
 		String systems = loadSystems();
+		
+		before((request, response) -> {
+			StringBuilder sb = new StringBuilder();
+			sb.append(request.requestMethod());
+			sb.append(" | " + request.url());
+			String body = request.body();
+			sb.append(" | " + body + " | ");
+			for(String header : request.headers())
+				sb.append(header + " => " + request.headers(header) + ", ");
+			log.info(sb.toString());
+	    });
 	    
         get("/systems", (request, response) -> {
         	response.status(200);
@@ -87,6 +98,7 @@ public class GrouperServe {
         	
         	response.status(200);
             response.type("application/json");
+            
         	return objectToJSON(result, prettyPrint, response);
         });
         
