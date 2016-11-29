@@ -117,6 +117,14 @@ Follow the logs:
 docker logs -ft grouperserve
 ```
 
+### Manage container with SystemD
+```
+sudo cp docker-grouperserve.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl start docker-grouperserve.service
+sudo systemctl enable docker-grouperserve.service
+```
+
 
 
 
