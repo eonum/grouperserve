@@ -28,5 +28,15 @@
         "chop" : "CHOP 2016",
         "data_year" : "2016",
         "application_year" : "2016"
+    },
+    {   
+        "version" : "V6_A",
+        "name_de" : "SwissDRG 6.0 Abrechnungsversion 2017 / 2017",
+        "name_fr" : "SwissDRG 6.0 Version de Tarification 2017 / 2017",
+        "name_it" : "SwissDRG 6.0 Versione tariffazione 2017 / 2017",
+        "icd" : "ICD10-GM-2016",
+        "chop" : "CHOP 2017",
+        "data_year" : "2017",
+        "application_year" : "2017"
     }
 ]
