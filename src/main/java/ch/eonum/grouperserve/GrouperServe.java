@@ -16,12 +16,13 @@ import org.slf4j.LoggerFactory;
 import org.swissdrg.grouper.EffectiveCostWeight;
 import org.swissdrg.grouper.GrouperResult;
 import org.swissdrg.grouper.IGrouperKernel;
+import org.swissdrg.grouper.IPatientCaseParser;
 import org.swissdrg.grouper.PatientCase;
+import org.swissdrg.grouper.PatientCaseParserFactory;
+import org.swissdrg.grouper.PatientCaseParserFactory.InputFormat;
 import org.swissdrg.grouper.WeightingRelation;
-import org.swissdrg.grouper.batchgrouper.Catalogue;
-import org.swissdrg.grouper.kernel.GrouperKernel;
-import org.swissdrg.grouper.pcparsers.UrlPatientCaseParser;
-import org.swissdrg.grouper.specs.SpecificationReader;
+import org.swissdrg.grouper.Catalogue;
+import org.swissdrg.grouper.SpecificationReader;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,7 +38,7 @@ public class GrouperServe {
 	private static final String GROUPERSPECS_FOLDER = "grouperspecs/";
 	private static HashMap<String, IGrouperKernel> grouperKernels;
 	private static HashMap<String, Map<String, WeightingRelation>> catalogues;
-	private static UrlPatientCaseParser pcParser = new UrlPatientCaseParser();
+	private static IPatientCaseParser pcParser = PatientCaseParserFactory.getParserFor(InputFormat.URL);
 	
 	public static void main(String[] args) {
 		String systems = loadSystems();
@@ -78,7 +79,7 @@ public class GrouperServe {
         	grouper.groupByReference(pc);
         	GrouperResult gr = pc.getGrouperResult();
         	Map<String, WeightingRelation> catalogue = catalogues.get(version);
-        	EffectiveCostWeight ecw = grouper.calculateEffectiveCostWeight(pc, catalogue.get(gr.getDrg()));
+        	EffectiveCostWeight ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogue.get(gr.getDrg()));
         	Map<String, Object> result = new HashMap<>();
         	result.put("grouperResult", gr);
         	result.put("effectiveCostWeight", ecw);
@@ -125,7 +126,7 @@ public class GrouperServe {
 	        	
 	        	grouper.groupByReference(pc);
 	        	GrouperResult gr = pc.getGrouperResult();
-	        	EffectiveCostWeight ecw = grouper.calculateEffectiveCostWeight(pc, catalogue.get(gr.getDrg()));
+	        	EffectiveCostWeight ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogue.get(gr.getDrg()));
 	        	Map<String, Object> result = new HashMap<>();
 	        	result.put("grouperResult", gr);
 	        	result.put("effectiveCostWeight", ecw);
@@ -197,7 +198,7 @@ public class GrouperServe {
 					stop();
 				}
 				try {
-					GrouperKernel grouper = reader.loadGrouper(workspace);
+					IGrouperKernel grouper = reader.loadGrouper(workspace);
 					grouperKernels.put(version, grouper);
 				} catch (Exception e) {
 					log.error("Error while loading DRG workspace " + workspace);
