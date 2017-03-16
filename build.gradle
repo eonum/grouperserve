@@ -42,7 +42,7 @@ dependencies {
     compile group: 'com.google.guava', name: 'guava', version: '19.0'
     compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
     
-    compile name: 'grouper-0.4.0'
+    compile name: 'grouper-with-dependencies-1.0.0'
             
     testCompile 'junit:junit:4.12'
 }
