@@ -6,7 +6,7 @@ Microservice for the SwissDRG grouper. Provided as a REST JSON API over HTTP/HTT
 Copy grouper jar to the libs directory:
 ```
 mkdir libs
-cp grouper_0.4.0.jar libs 
+cp grouper-X.Y.Z-all.jar libs 
 ```
 
 Make sure gradle -v returns something similar to this:
