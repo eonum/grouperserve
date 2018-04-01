@@ -43,7 +43,7 @@ You should obtain a list of all provided SwissDRG systems in a JSON array.
 
 
 ## The patient case URL format
-![the URL patient case format](PatientCase_URL_format.png "The patient case URL format")
+See [https://docs.swissdrg.org/BatchgrouperFormat2017.pdf]. Use '_' instead of ';', '-' instead of '|' and '$' instead of ':'.
 
 ## API calls
 
