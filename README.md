@@ -33,7 +33,7 @@ In order for the service to be functional you have to provide the JSON specifica
 
 Run grouper server:
 ```
-java -cp build/libs/grouperserve-0.1.1.jar ch.eonum.grouperserve.GrouperServe
+java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
 ```
 
 
