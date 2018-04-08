@@ -43,7 +43,7 @@ You should obtain a list of all provided SwissDRG systems in a JSON array.
 
 
 ## The patient case URL format
-![the URL patient case format](PatientCase_URL_format.png "The patient case URL format")
+See [https://docs.swissdrg.org/BatchgrouperFormat2017.pdf]. Use '_' instead of ';', '-' instead of '|' and '$' instead of ':'.
 
 ## API calls
 
@@ -75,7 +75,7 @@ Parameters:
 
 sample call using curl: 
 ```
-curl --header "Accept: application/json" --data "version=V5_A&pc=11_65_0_0_M_01_00_1_0_I481_Z921_F051_-_8954_&pretty=true" "$ROOT_URL/group"
+curl --header "Accept: application/json" --data "version=V5_A&pc=11_65_0_0_M__01__00_1_0_I481-Z921-F051_8954_&pretty=true" "$ROOT_URL/group"
 ```
 
 ### group_many
@@ -91,19 +91,19 @@ Parameters:
 
 sample call using curl: 
 ```
-curl --header "Accept: application/json" --data "version=V5_A&pcs=[\"11_65_0_0_M_01_00_1_0_I481_Z921_F051_-_8954_\", \"12_65_0_0_M_01_00_1_0_I481\"]&pretty=true" "http://localhost:4567/group_many"
+curl --header "Accept: application/json" --data "version=V5_A&pcs=[\"11_65_0_0_M__01__00_1_0_I481-Z921-F051_8954_\", \"12_65_0_0_M__01__00_1_0_I481__\"]&pretty=true" "http://localhost:4567/group_many"
 ```
 
 
 ## Run as Docker container
 Run the server:
 ```
-docker run -it -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --rm openjdk:8 java -cp build/libs/grouperserve-0.1.1.jar ch.eonum.grouperserve.GrouperServe
+docker run -it -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --rm openjdk:8 java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
 ```
 
 Run in detached mode:
 ```
-docker run -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --name=grouperserve --detach=true openjdk:8 java -cp build/libs/grouperserve-0.1.1.jar ch.eonum.grouperserve.GrouperServe
+docker run -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --name=grouperserve --detach=true openjdk:8 java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
 ```
 In detached mode you can stop, kill, remove or start the server as follows:
 ```

@@ -49,7 +49,7 @@ dependencies {
 
 jar {
     baseName = 'grouperserve'
-    version =  '0.1.1'
+    version =  '0.2.0'
     manifest {
         attributes 'Main-Class': 'ch.eonum.grouperserve.GrouperServe'
     }
