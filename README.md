@@ -72,6 +72,7 @@ Parameters:
 * version: version identifier as provided by /systems
 * pretty: (true|false) pretty print JSON (default is false)
 * annotate: (true|false) return the annotated patient case with CCL values, validations and used flags (default is false)
+* zegroup: (true|false) return Zusatzentgelte in field 'zeResult'
 
 sample call using curl: 
 ```
