@@ -16,10 +16,12 @@ import org.slf4j.LoggerFactory;
 import org.swissdrg.grouper.EffectiveCostWeight;
 import org.swissdrg.grouper.GrouperResult;
 import org.swissdrg.grouper.IGrouperKernel;
+import org.swissdrg.grouper.IGrouperKernel.Tariff;
 import org.swissdrg.grouper.IPatientCaseParser;
 import org.swissdrg.grouper.PatientCase;
+import org.swissdrg.grouper.PatientCaseParserFactory;
+import org.swissdrg.grouper.PatientCaseParserFactory.InputFormat;
 import org.swissdrg.grouper.WeightingRelation;
-import org.swissdrg.grouper.pcparsers.UrlPatientCaseParser;
 import org.swissdrg.zegrouper.api.ISupplementGroupResult;
 import org.swissdrg.zegrouper.api.ISupplementGrouper;
 import org.swissdrg.grouper.Catalogue;
@@ -41,9 +43,7 @@ public class GrouperServe {
 	private static HashMap<String, IGrouperKernel> grouperKernels;
 	private static HashMap<String, ISupplementGrouper> zeKernels;
 	private static HashMap<String, Map<String, WeightingRelation>> catalogues;
-	// #TODO Replace this with a call to PatientCaseParserFactory as soon as the new
-	// URL parser is integrated in the factory.
-	private static IPatientCaseParser pcParser = new UrlPatientCaseParser();
+	private static IPatientCaseParser pcParser = PatientCaseParserFactory.getParserFor(InputFormat.URL, Tariff.SWISSDRG);
 	
 	public static void main(String[] args) {
 		String systems = loadSystems();
@@ -219,7 +219,7 @@ public class GrouperServe {
 				
 				/** Load DRG logic from JSON workspace. */
 				try {
-					IGrouperKernel grouper = reader.loadGrouper(workspace);
+					IGrouperKernel grouper = reader.loadGrouper(workspace, Tariff.SWISSDRG);
 					grouperKernels.put(version, grouper);
 				} catch (Exception e) {
 					log.error("Error while loading DRG workspace " + workspace);
