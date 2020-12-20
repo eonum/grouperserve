@@ -2,6 +2,7 @@ package ch.eonum.grouperserve;
 
 import static spark.Spark.*;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -18,14 +19,15 @@ import org.swissdrg.grouper.GrouperResult;
 import org.swissdrg.grouper.IGrouperKernel;
 import org.swissdrg.grouper.IGrouperKernel.Tariff;
 import org.swissdrg.grouper.IPatientCaseParser;
+import org.swissdrg.grouper.ISpecification;
 import org.swissdrg.grouper.PatientCase;
 import org.swissdrg.grouper.PatientCaseParserFactory;
 import org.swissdrg.grouper.PatientCaseParserFactory.InputFormat;
+import org.swissdrg.grouper.SpecificationLoader;
 import org.swissdrg.grouper.WeightingRelation;
 import org.swissdrg.zegrouper.api.ISupplementGroupResult;
 import org.swissdrg.zegrouper.api.ISupplementGrouper;
 import org.swissdrg.grouper.Catalogue;
-import org.swissdrg.grouper.SpecificationReader;
 import org.swissdrg.grouper.SupplementPatientCase;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -200,13 +202,12 @@ public class GrouperServe {
 			catalogues = new HashMap<>();
 			zeKernels = new HashMap<>();
 			
-			SpecificationReader reader = new SpecificationReader();
-			
 			
 			for(Map<String, String> system : systemsJSON){
 				String version = system.get("version");
 				log.info("Loading grouper " + version);
 				String workspace = GROUPERSPECS_FOLDER + version + "/";
+				String specs = system.get("specs");
 				
 				/** Load DRG catalogue. */
 				try {
@@ -216,31 +217,27 @@ public class GrouperServe {
 							+ workspace + "catalogue-acute.csv");
 					stop();
 				}
-				
+
 				/** Load DRG logic from JSON workspace. */
 				try {
-					IGrouperKernel grouper = reader.loadGrouper(workspace, Tariff.SWISSDRG);
-					grouperKernels.put(version, grouper);
+					if(specs != null) {
+						workspace += specs;
+					}
+					ISpecification specification = SpecificationLoader.from(new File(workspace), Tariff.SWISSDRG);
+					grouperKernels.put(version, specification.getGrouper());
+					if(specification.getSupplementGrouper().isPresent()) {
+						zeKernels.put(version, specification.getSupplementGrouper().get());
+						log.info("Loaded ZE Grouper " + version);
+					} else {
+						log.info("No ZE Grouper loaded for " + version);
+					}
 				} catch (Exception e) {
 					log.error("Error while loading DRG workspace " + workspace);
 					log.error(e.getMessage());
 					e.printStackTrace();
 					stop();
 				}
-				
-				/** Load supplement grouper (Zusatzentgeltgrouper) logic from JSON. */
-				try {
-					ISupplementGrouper supplementGrouper = reader.loadSupplementGrouper(workspace);
-					zeKernels.put(version, supplementGrouper);
-					log.info("Loaded ZE Grouper " + version);
-				} catch (IOException fe) {
-					// do nothing
-				} catch (Exception e) {
-					log.error("Error while loading ZE grouper " + workspace + "ze-logic.json");
-					log.error(e.getMessage());
-					e.printStackTrace();
-					stop();
-				}
+			
 			}
 		} catch (IOException e) {
 			log.error("Error during grouper server startup while loading systems: ");
