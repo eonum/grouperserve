@@ -1,5 +1,6 @@
 [
-{    "name_de" : "SwissDRG 8.0 Abrechnungsversion 2019 / 2019",
+    {   "version" : "V8_A",         
+	"name_de" : "SwissDRG 8.0 Abrechnungsversion 2019 / 2019",
         "name_fr" : "SwissDRG 8.0 Version de Tarification 2019 / 2019",
         "name_it" : "SwissDRG 8.0 Versione tariffazione 2019 / 2019",
         "icd" : "ICD10-GM-2018",
