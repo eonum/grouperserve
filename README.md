@@ -99,12 +99,12 @@ curl --header "Accept: application/json" --data "version=V5_A&pcs=[\"11_65_0_0_M
 ## Run as Docker container
 Run the server:
 ```
-docker run -it -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --rm openjdk:8 java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
+docker run -it -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --rm openjdk:11 java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
 ```
 
 Run in detached mode:
 ```
-docker run -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --name=grouperserve --detach=true openjdk:8 java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
+docker run -v $PWD:/opt/grouperserve -p 4567:4567 --workdir /opt/grouperserve --name=grouperserve --detach=true openjdk:11 java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
 ```
 In detached mode you can stop, kill, remove or start the server as follows:
 ```
