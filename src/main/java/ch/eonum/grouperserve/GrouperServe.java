@@ -28,6 +28,7 @@ import org.swissdrg.grouper.WeightingRelation;
 import org.swissdrg.grouper.streha.IStRehaWeightingRelation;
 import org.swissdrg.grouper.streha.StRehaCatalogue;
 import org.swissdrg.grouper.streha.StRehaCatalogue.LoadException;
+import org.swissdrg.grouper.streha.internal.StRehaEffectiveCostWeight;
 import org.swissdrg.zegrouper.api.ISupplementGroupResult;
 import org.swissdrg.zegrouper.api.ISupplementGrouper;
 import org.swissdrg.grouper.Catalogue;
@@ -61,56 +62,66 @@ public class GrouperServe {
         });
         
         post("/group", (request, response) -> {
-        	String validationMessage = validateRequest(request);
-        	if(validationMessage != null){
-        		response.status(HTTP_BAD_REQUEST);
-                return validationMessage;
-        	}
-        	
-        	if(request.queryParams("pc") == null){
-        		response.status(HTTP_BAD_REQUEST);
-        		return "You have to provide a patient case in the 'pc' parameter!";
-        	}
-        	
-        	String pcString = request.queryParams("pc");
-        	PatientCase pc = null;
         	try {
-        		pc = pcParser.parse(pcString);
+	        	String validationMessage = validateRequest(request);
+	        	if(validationMessage != null){
+	        		response.status(HTTP_BAD_REQUEST);
+	                return validationMessage;
+	        	}
+	        	
+	        	if(request.queryParams("pc") == null){
+	        		response.status(HTTP_BAD_REQUEST);
+	        		return "You have to provide a patient case in the 'pc' parameter!";
+	        	}
+	        	
+	        	String pcString = request.queryParams("pc");
+	        	PatientCase pc = null;
+	        	try {
+	        		pc = pcParser.parse(pcString);
+	        	} catch (Exception e) {
+	        		response.status(HTTP_BAD_REQUEST);
+	                return e.getMessage();
+	        	}
+	
+	        	String version = request.queryParams("version");
+	        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
+	        	boolean annotate = "true".equals(request.queryParams("annotate"));
+	        	boolean zeGroup = "true".equals(request.queryParams("zegroup"));
+	        	boolean isStreha = version.toUpperCase().contains("REHA");        		
+	        
+	        	IGrouperKernel grouper = grouperKernels.get(version);
+	        	grouper.groupByReference(pc);
+	        	GrouperResult gr = pc.getGrouperResult();
+	        	Object ecw;
+	        	if(isStreha) {
+	        		ecw = strehaCatalogues.get(version).get(gr.getDrg()).getEffectiveCostWeight(pc);
+	        	} else {
+		        	ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogues.get(version).get(gr.getDrg()));
+	        	}
+	        	Map<String, Object> result = new HashMap<>();
+	        	result.put("grouperResult", gr);
+	        	result.put("effectiveCostWeight", ecw);
+	        	if(annotate)
+	        		result.put("patientCase", pc);
+	        	
+	        	if(zeGroup) {
+	        		if (!zeKernels.containsKey(version)) {
+	        			response.status(HTTP_BAD_REQUEST);
+	                    return "There is no supplement grouper for system " + version;
+	        		}
+	        		SupplementPatientCase sPc = new SupplementPatientCase(pc);      
+	                ISupplementGroupResult zeResult = zeKernels.get(version).group(sPc);
+	        		result.put("zeResult", zeResult);
+	        	}
+	        	response.status(200);
+	            response.type("application/json");
+	        	return objectToJSON(result, prettyPrint, response);
         	} catch (Exception e) {
-        		response.status(HTTP_BAD_REQUEST);
-                return e.getMessage();
-        	}
-
-        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
-        	boolean annotate = "true".equals(request.queryParams("annotate"));
-        	boolean zeGroup = "true".equals(request.queryParams("zegroup"));
-        		
-        	
-        	String version = request.queryParams("version");
-        	IGrouperKernel grouper = grouperKernels.get(version);
-        	grouper.groupByReference(pc);
-        	GrouperResult gr = pc.getGrouperResult();
-        	Map<String, WeightingRelation> catalogue = catalogues.get(version);
-        	EffectiveCostWeight ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogue.get(gr.getDrg()));
-        	Map<String, Object> result = new HashMap<>();
-        	result.put("grouperResult", gr);
-        	result.put("effectiveCostWeight", ecw);
-        	if(annotate)
-        		result.put("patientCase", pc);
-        	
-        	if(zeGroup) {
-        		if (!zeKernels.containsKey(version)) {
-        			response.status(HTTP_BAD_REQUEST);
-                    return "There is no supplement grouper for system " + version;
-        		}
-        		SupplementPatientCase sPc = new SupplementPatientCase(pc);      
-                ISupplementGroupResult zeResult = zeKernels.get(version).group(sPc);
-        		result.put("zeResult", zeResult);
+        		log.error(e.getMessage());
+        		e.printStackTrace();
+        		throw e;
         	}
         	
-        	response.status(200);
-            response.type("application/json");
-        	return objectToJSON(result, prettyPrint, response);
         });
         
         post("/group_many", (request, response) -> {
@@ -131,6 +142,7 @@ public class GrouperServe {
         	
         	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
         	boolean annotate = "true".equals(request.queryParams("annotate"));
+        	boolean isStreha = version.toUpperCase().contains("REHA");
      	
         	ObjectMapper mapper = new ObjectMapper();
         	@SuppressWarnings("unchecked")
@@ -233,7 +245,7 @@ public class GrouperServe {
 					if(specs != null) {
 						workspace += specs;
 					}
-					ISpecification specification = SpecificationLoader.from(new File(workspace), Tariff.SWISSDRG);
+					ISpecification specification = SpecificationLoader.from(new File(workspace), isStreha ? Tariff.STREHA : Tariff.SWISSDRG);
 					grouperKernels.put(version, specification.getGrouper());
 					if(specification.getSupplementGrouper().isPresent()) {
 						zeKernels.put(version, specification.getSupplementGrouper().get());
