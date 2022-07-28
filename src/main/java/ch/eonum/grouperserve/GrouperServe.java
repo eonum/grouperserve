@@ -25,6 +25,9 @@ import org.swissdrg.grouper.PatientCaseParserFactory;
 import org.swissdrg.grouper.PatientCaseParserFactory.InputFormat;
 import org.swissdrg.grouper.SpecificationLoader;
 import org.swissdrg.grouper.WeightingRelation;
+import org.swissdrg.grouper.streha.IStRehaWeightingRelation;
+import org.swissdrg.grouper.streha.StRehaCatalogue;
+import org.swissdrg.grouper.streha.StRehaCatalogue.LoadException;
 import org.swissdrg.zegrouper.api.ISupplementGroupResult;
 import org.swissdrg.zegrouper.api.ISupplementGrouper;
 import org.swissdrg.grouper.Catalogue;
@@ -45,9 +48,10 @@ public class GrouperServe {
 	private static HashMap<String, IGrouperKernel> grouperKernels;
 	private static HashMap<String, ISupplementGrouper> zeKernels;
 	private static HashMap<String, Map<String, WeightingRelation>> catalogues;
+	private static HashMap<String, Map<String, IStRehaWeightingRelation>> strehaCatalogues;
 	private static IPatientCaseParser pcParser = PatientCaseParserFactory.getParserFor(InputFormat.URL, Tariff.SWISSDRG);
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws LoadException {
 		String systems = loadSystems();
 	    
         get("/systems", (request, response) -> {
@@ -57,105 +61,126 @@ public class GrouperServe {
         });
         
         post("/group", (request, response) -> {
-        	String validationMessage = validateRequest(request);
-        	if(validationMessage != null){
-        		response.status(HTTP_BAD_REQUEST);
-                return validationMessage;
-        	}
-        	
-        	if(request.queryParams("pc") == null){
-        		response.status(HTTP_BAD_REQUEST);
-        		return "You have to provide a patient case in the 'pc' parameter!";
-        	}
-        	
-        	String pcString = request.queryParams("pc");
-        	PatientCase pc = null;
         	try {
-        		pc = pcParser.parse(pcString);
-        	} catch (Exception e) {
-        		response.status(HTTP_BAD_REQUEST);
-                return e.getMessage();
-        	}
-
-        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
-        	boolean annotate = "true".equals(request.queryParams("annotate"));
-        	boolean zeGroup = "true".equals(request.queryParams("zegroup"));
-        		
-        	
-        	String version = request.queryParams("version");
-        	IGrouperKernel grouper = grouperKernels.get(version);
-        	grouper.groupByReference(pc);
-        	GrouperResult gr = pc.getGrouperResult();
-        	Map<String, WeightingRelation> catalogue = catalogues.get(version);
-        	EffectiveCostWeight ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogue.get(gr.getDrg()));
-        	Map<String, Object> result = new HashMap<>();
-        	result.put("grouperResult", gr);
-        	result.put("effectiveCostWeight", ecw);
-        	if(annotate)
-        		result.put("patientCase", pc);
-        	
-        	if(zeGroup) {
-        		if (!zeKernels.containsKey(version)) {
-        			response.status(HTTP_BAD_REQUEST);
-                    return "There is no supplement grouper for system " + version;
-        		}
-        		SupplementPatientCase sPc = new SupplementPatientCase(pc);      
-                ISupplementGroupResult zeResult = zeKernels.get(version).group(sPc);
-        		result.put("zeResult", zeResult);
-        	}
-        	
-        	response.status(200);
-            response.type("application/json");
-        	return objectToJSON(result, prettyPrint, response);
-        });
-        
-        post("/group_many", (request, response) -> {
-        	String validationMessage = validateRequest(request);
-        	if(validationMessage != null){
-        		response.status(HTTP_BAD_REQUEST);
-                return validationMessage;
-        	}
-        	
-        	if(request.queryParams("pcs") == null){
-        		response.status(HTTP_BAD_REQUEST);
-        		return "You have to provide a list of patient cases in the 'pcs' parameter!";
-        	}
-        	
-        	String version = request.queryParams("version");
-        	IGrouperKernel grouper = grouperKernels.get(version);
-        	Map<String, WeightingRelation> catalogue = catalogues.get(version);
-        	
-        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
-        	boolean annotate = "true".equals(request.queryParams("annotate"));
-     	
-        	ObjectMapper mapper = new ObjectMapper();
-        	@SuppressWarnings("unchecked")
-			List<String> patientCases = mapper.readValue(request.queryParams("pcs"), ArrayList.class);
-        	List<Map<String, Object>> results = new ArrayList<>();
-        	
-        	for(String pcString : patientCases){	
+	        	String validationMessage = validateRequest(request);
+	        	if(validationMessage != null){
+	        		response.status(HTTP_BAD_REQUEST);
+	                return validationMessage;
+	        	}
+	        	
+	        	if(request.queryParams("pc") == null){
+	        		response.status(HTTP_BAD_REQUEST);
+	        		return "You have to provide a patient case in the 'pc' parameter!";
+	        	}
+	        	
+	        	String pcString = request.queryParams("pc");
 	        	PatientCase pc = null;
 	        	try {
 	        		pc = pcParser.parse(pcString);
 	        	} catch (Exception e) {
 	        		response.status(HTTP_BAD_REQUEST);
 	                return e.getMessage();
-	        	}     		
-	        	
+	        	}
+	
+	        	String version = request.queryParams("version");
+	        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
+	        	boolean annotate = "true".equals(request.queryParams("annotate"));
+	        	boolean zeGroup = "true".equals(request.queryParams("zegroup"));
+	        	boolean isStreha = version.toUpperCase().contains("REHA");        		
+	        
+	        	IGrouperKernel grouper = grouperKernels.get(version);
 	        	grouper.groupByReference(pc);
 	        	GrouperResult gr = pc.getGrouperResult();
-	        	EffectiveCostWeight ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogue.get(gr.getDrg()));
+	        	Object ecw;
+	        	if(isStreha) {
+	        		ecw = strehaCatalogues.get(version).get(gr.getDrg()).getEffectiveCostWeight(pc);
+	        	} else {
+		        	ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogues.get(version).get(gr.getDrg()));
+	        	}
 	        	Map<String, Object> result = new HashMap<>();
 	        	result.put("grouperResult", gr);
 	        	result.put("effectiveCostWeight", ecw);
 	        	if(annotate)
 	        		result.put("patientCase", pc);
-	        	results.add(result);
+	        	
+	        	if(zeGroup) {
+	        		if (!zeKernels.containsKey(version)) {
+	        			response.status(HTTP_BAD_REQUEST);
+	                    return "There is no supplement grouper for system " + version;
+	        		}
+	        		SupplementPatientCase sPc = new SupplementPatientCase(pc);      
+	                ISupplementGroupResult zeResult = zeKernels.get(version).group(sPc);
+	        		result.put("zeResult", zeResult);
+	        	}
+	        	response.status(200);
+	            response.type("application/json");
+	        	return objectToJSON(result, prettyPrint, response);
+        	} catch (Exception e) {
+        		log.error(e.getMessage());
+        		e.printStackTrace();
+        		throw e;
         	}
         	
-        	response.status(200);
-            response.type("application/json");
-        	return objectToJSON(results, prettyPrint, response);
+        });
+        
+        post("/group_many", (request, response) -> {
+        	try {
+	        	String validationMessage = validateRequest(request);
+	        	if(validationMessage != null){
+	        		response.status(HTTP_BAD_REQUEST);
+	                return validationMessage;
+	        	}
+	        	
+	        	if(request.queryParams("pcs") == null){
+	        		response.status(HTTP_BAD_REQUEST);
+	        		return "You have to provide a list of patient cases in the 'pcs' parameter!";
+	        	}
+	        	
+	        	String version = request.queryParams("version");
+	        	IGrouperKernel grouper = grouperKernels.get(version);
+	        	
+	        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
+	        	boolean annotate = "true".equals(request.queryParams("annotate"));
+	        	boolean isStreha = version.toUpperCase().contains("REHA");
+	     	
+	        	ObjectMapper mapper = new ObjectMapper();
+	        	@SuppressWarnings("unchecked")
+				List<String> patientCases = mapper.readValue(request.queryParams("pcs"), ArrayList.class);
+	        	List<Map<String, Object>> results = new ArrayList<>();
+	        	
+	        	for(String pcString : patientCases){	
+		        	PatientCase pc = null;
+		        	try {
+		        		pc = pcParser.parse(pcString);
+		        	} catch (Exception e) {
+		        		response.status(HTTP_BAD_REQUEST);
+		                return e.getMessage();
+		        	}     		
+		        	
+		        	grouper.groupByReference(pc);
+		        	GrouperResult gr = pc.getGrouperResult();
+		        	Object ecw;
+		        	if(isStreha) {
+		        		ecw = strehaCatalogues.get(version).get(gr.getDrg()).getEffectiveCostWeight(pc);
+		        	} else {
+			        	ecw = EffectiveCostWeight.calculateEffectiveCostWeight(pc, catalogues.get(version).get(gr.getDrg()));
+		        	}
+		        	Map<String, Object> result = new HashMap<>();
+		        	result.put("grouperResult", gr);
+		        	result.put("effectiveCostWeight", ecw);
+		        	if(annotate)
+		        		result.put("patientCase", pc);
+		        	results.add(result);
+	        	}
+	        	
+	        	response.status(200);
+	            response.type("application/json");
+	        	return objectToJSON(results, prettyPrint, response);
+        	} catch (Exception e) {
+        		log.error(e.getMessage());
+        		e.printStackTrace();
+        		throw e;
+        	}
         });
     }
 
@@ -189,7 +214,7 @@ public class GrouperServe {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static String loadSystems() {
+	private static String loadSystems() throws LoadException {
 		StringWriter sw = new StringWriter();
 		
 		try {
@@ -200,21 +225,27 @@ public class GrouperServe {
 			
 			grouperKernels = new HashMap<>();
 			catalogues = new HashMap<>();
+			strehaCatalogues = new HashMap<>();
 			zeKernels = new HashMap<>();
 			
 			
 			for(Map<String, String> system : systemsJSON){
 				String version = system.get("version");
+				boolean isStreha = version.toUpperCase().contains("REHA");
 				log.info("Loading grouper " + version);
 				String workspace = GROUPERSPECS_FOLDER + version + "/";
 				String specs = system.get("specs");
 				
 				/** Load DRG catalogue. */
+				String catFile = isStreha ? "catalogue.csv" : "catalogue-acute.csv";
 				try {
-					catalogues.put(version, Catalogue.createFrom( workspace + "catalogue-acute.csv"));
+					if(!isStreha)
+						catalogues.put(version, Catalogue.createFrom( workspace + catFile));
+					else
+						strehaCatalogues.put(version, StRehaCatalogue.createFrom( workspace + catFile));
 				} catch (FileNotFoundException e) {
 					log.error("Could not find DRG catalogue file "
-							+ workspace + "catalogue-acute.csv");
+							+ workspace + catFile);
 					stop();
 				}
 
@@ -223,7 +254,7 @@ public class GrouperServe {
 					if(specs != null) {
 						workspace += specs;
 					}
-					ISpecification specification = SpecificationLoader.from(new File(workspace), Tariff.SWISSDRG);
+					ISpecification specification = SpecificationLoader.from(new File(workspace), isStreha ? Tariff.STREHA : Tariff.SWISSDRG);
 					grouperKernels.put(version, specification.getGrouper());
 					if(specification.getSupplementGrouper().isPresent()) {
 						zeKernels.put(version, specification.getSupplementGrouper().get());
