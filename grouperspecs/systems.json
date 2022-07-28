@@ -123,5 +123,38 @@
         "data_year" : "2020",
         "application_year" : "2023",
 	"specs" : "spec12.1.1.sgs"
+    },
+    {
+        "version" : "REHA_1.0_AV",
+        "name_de" : "ST Reha 1.0 Abrechnungsversion 2022 / 2022",
+        "name_fr" : "ST Reha 1.0 Version de Tarification 2022 / 2022",
+        "name_it" : "ST Reha 1.0 Versione tariffazione 2022 / 2022",
+        "icd" : "ICD10-GM-2022",
+        "chop" : "CHOP 2022",
+        "data_year" : "2022",
+        "application_year" : "2022",
+	"specs" : "specr1.3.sgs"
+    },
+    {
+        "version" : "REHA_1.0_P2",
+        "name_de" : "ST Reha 1.0 Planungsversion 2 2021 / 2022",
+        "name_fr" : "ST Reha 1.0 Version de Planification 2 2021 / 2022",
+        "name_it" : "ST Reha 1.0 Versione Pianificazione 2 2021 / 2022",
+        "icd" : "ICD10-GM-2021",
+        "chop" : "CHOP 2021",
+        "data_year" : "2021",
+        "application_year" : "2022",
+	"specs" : "specr1.2.sgs"
+    },
+    {
+        "version" : "REHA_1.0_P1",
+        "name_de" : "ST Reha 1.0 Planungsversion 1 2020 / 2022",
+        "name_fr" : "ST Reha 1.0 Version de Planification 1 2020 / 2022",
+        "name_it" : "ST Reha 1.0 Versione Pianificazione 1 2020 / 2022",
+        "icd" : "ICD10-GM-2018",
+        "chop" : "CHOP 2020",
+        "data_year" : "2020",
+        "application_year" : "2022",
+	"specs" : "specr1.1.sgs"
     }
 ]
