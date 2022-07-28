@@ -25,6 +25,9 @@ import org.swissdrg.grouper.PatientCaseParserFactory;
 import org.swissdrg.grouper.PatientCaseParserFactory.InputFormat;
 import org.swissdrg.grouper.SpecificationLoader;
 import org.swissdrg.grouper.WeightingRelation;
+import org.swissdrg.grouper.streha.IStRehaWeightingRelation;
+import org.swissdrg.grouper.streha.StRehaCatalogue;
+import org.swissdrg.grouper.streha.StRehaCatalogue.LoadException;
 import org.swissdrg.zegrouper.api.ISupplementGroupResult;
 import org.swissdrg.zegrouper.api.ISupplementGrouper;
 import org.swissdrg.grouper.Catalogue;
@@ -45,9 +48,10 @@ public class GrouperServe {
 	private static HashMap<String, IGrouperKernel> grouperKernels;
 	private static HashMap<String, ISupplementGrouper> zeKernels;
 	private static HashMap<String, Map<String, WeightingRelation>> catalogues;
+	private static HashMap<String, Map<String, IStRehaWeightingRelation>> strehaCatalogues;
 	private static IPatientCaseParser pcParser = PatientCaseParserFactory.getParserFor(InputFormat.URL, Tariff.SWISSDRG);
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws LoadException {
 		String systems = loadSystems();
 	    
         get("/systems", (request, response) -> {
@@ -189,7 +193,7 @@ public class GrouperServe {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static String loadSystems() {
+	private static String loadSystems() throws LoadException {
 		StringWriter sw = new StringWriter();
 		
 		try {
@@ -200,21 +204,27 @@ public class GrouperServe {
 			
 			grouperKernels = new HashMap<>();
 			catalogues = new HashMap<>();
+			strehaCatalogues = new HashMap<>();
 			zeKernels = new HashMap<>();
 			
 			
 			for(Map<String, String> system : systemsJSON){
 				String version = system.get("version");
+				boolean isStreha = version.toUpperCase().contains("REHA");
 				log.info("Loading grouper " + version);
 				String workspace = GROUPERSPECS_FOLDER + version + "/";
 				String specs = system.get("specs");
 				
 				/** Load DRG catalogue. */
+				String catFile = isStreha ? "catalogue.csv" : "catalogue-acute.csv";
 				try {
-					catalogues.put(version, Catalogue.createFrom( workspace + "catalogue-acute.csv"));
+					if(!isStreha)
+						catalogues.put(version, Catalogue.createFrom( workspace + catFile));
+					else
+						strehaCatalogues.put(version, StRehaCatalogue.createFrom( workspace + catFile));
 				} catch (FileNotFoundException e) {
 					log.error("Could not find DRG catalogue file "
-							+ workspace + "catalogue-acute.csv");
+							+ workspace + catFile);
 					stop();
 				}
 

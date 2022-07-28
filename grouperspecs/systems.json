@@ -136,7 +136,7 @@
 	"specs" : "specr1.3.sgs"
     },
     {
-        "version" : "REHA_1.0_P2",
+        "version" : "REHA_1.0_PV2",
         "name_de" : "ST Reha 1.0 Planungsversion 2 2021 / 2022",
         "name_fr" : "ST Reha 1.0 Version de Planification 2 2021 / 2022",
         "name_it" : "ST Reha 1.0 Versione Pianificazione 2 2021 / 2022",
@@ -147,7 +147,7 @@
 	"specs" : "specr1.2.sgs"
     },
     {
-        "version" : "REHA_1.0_P1",
+        "version" : "REHA_1.0_PV1",
         "name_de" : "ST Reha 1.0 Planungsversion 1 2020 / 2022",
         "name_fr" : "ST Reha 1.0 Version de Planification 1 2020 / 2022",
         "name_it" : "ST Reha 1.0 Versione Pianificazione 1 2020 / 2022",
