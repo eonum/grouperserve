@@ -45,11 +45,14 @@ public class GrouperServe {
 	private static final int HTTP_BAD_REQUEST = 400;
 	private static final int INTERNAL_SERVER_ERROR = 500;
 	private static final String GROUPERSPECS_FOLDER = "grouperspecs/";
+	private static final int MAX_GROUPERKERNELS_LOADED = 4;
 	private static HashMap<String, IGrouperKernel> grouperKernels;
 	private static HashMap<String, ISupplementGrouper> zeKernels;
 	private static HashMap<String, Map<String, WeightingRelation>> catalogues;
 	private static HashMap<String, Map<String, IStRehaWeightingRelation>> strehaCatalogues;
 	private static IPatientCaseParser pcParser = PatientCaseParserFactory.getParserFor(InputFormat.URL, Tariff.SWISSDRG);
+	private static HashMap<String, Map<String, String>> systemsJSON;
+	private static List<String> usedSystemsStack;
 	
 	public static void main(String[] args) throws LoadException {
 		String systems = loadSystems();
@@ -88,7 +91,7 @@ public class GrouperServe {
 	        	boolean zeGroup = "true".equals(request.queryParams("zegroup"));
 	        	boolean isStreha = version.toUpperCase().contains("REHA");        		
 	        
-	        	IGrouperKernel grouper = grouperKernels.get(version);
+	        	IGrouperKernel grouper = getKernel(version);
 	        	grouper.groupByReference(pc);
 	        	GrouperResult gr = pc.getGrouperResult();
 	        	Object ecw;
@@ -137,7 +140,7 @@ public class GrouperServe {
 	        	}
 	        	
 	        	String version = request.queryParams("version");
-	        	IGrouperKernel grouper = grouperKernels.get(version);
+	        	IGrouperKernel grouper = getKernel(version);
 	        	
 	        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
 	        	boolean annotate = "true".equals(request.queryParams("annotate"));
@@ -206,11 +209,52 @@ public class GrouperServe {
 		String version = request.queryParams("version");
 		if(version == null)
 			return "You have to provide a 'version' parameter. Choose one from /systems.";
-		if(!grouperKernels.containsKey(version))
+		if(!systemsJSON.containsKey(version))
 			return "The provided version " + version + " does not exist.";
 		
 		
 		return null;
+	}
+	
+	private static IGrouperKernel getKernel(String version) {
+		if(grouperKernels.containsKey(version)) {
+			return grouperKernels.get(version);
+		}
+		loadGrouperKernel(systemsJSON.get(version));
+		return grouperKernels.get(version);
+	}
+	
+	private static void loadGrouperKernel(Map<String, String> system) {
+		/** Load DRG logic from JSON workspace. */
+		String specs = system.get("specs");
+		String version = system.get("version");
+		String workspace = GROUPERSPECS_FOLDER + version + "/";
+		boolean isStreha = version.toUpperCase().contains("REHA");
+
+		try {
+			log.info("Loading specs for " + version);
+			if(specs != null) {
+				workspace += specs;
+			}
+			ISpecification specification = SpecificationLoader.from(new File(workspace), isStreha ? Tariff.STREHA : Tariff.SWISSDRG);
+			grouperKernels.put(version, specification.getGrouper());
+			usedSystemsStack.add(version);
+			if(usedSystemsStack.size() >= MAX_GROUPERKERNELS_LOADED) {
+				String versionToRemove = usedSystemsStack.remove(0);
+				grouperKernels.remove(versionToRemove);
+			}
+			if(specification.getSupplementGrouper().isPresent()) {
+				zeKernels.put(version, specification.getSupplementGrouper().get());
+				log.info("Loaded ZE Grouper " + version);
+			} else {
+				log.info("No ZE Grouper loaded for " + version);
+			}
+		} catch (Exception e) {
+			log.error("Error while loading DRG workspace " + workspace);
+			log.error(e.getMessage());
+			e.printStackTrace();
+			stop();
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -219,22 +263,24 @@ public class GrouperServe {
 		
 		try {
 			ObjectMapper mapper = new ObjectMapper();
-			List<Map<String, String>> systemsJSON = mapper.readValue(new FileInputStream(GROUPERSPECS_FOLDER + "systems.json"), ArrayList.class);
+			List<Map<String, String>> systemsJSONarray = mapper.readValue(new FileInputStream(GROUPERSPECS_FOLDER + "systems.json"), ArrayList.class);
 			mapper.enable(SerializationFeature.INDENT_OUTPUT);
-			mapper.writeValue(sw, systemsJSON);
+			mapper.writeValue(sw, systemsJSONarray);
 			
 			grouperKernels = new HashMap<>();
 			catalogues = new HashMap<>();
 			strehaCatalogues = new HashMap<>();
 			zeKernels = new HashMap<>();
 			
+			systemsJSON = new HashMap<>();
+			usedSystemsStack = new ArrayList<>();
 			
-			for(Map<String, String> system : systemsJSON){
+			for(Map<String, String> system : systemsJSONarray){
 				String version = system.get("version");
+				systemsJSON.put(version, system);
 				boolean isStreha = version.toUpperCase().contains("REHA");
 				log.info("Loading grouper " + version);
 				String workspace = GROUPERSPECS_FOLDER + version + "/";
-				String specs = system.get("specs");
 				
 				/** Load DRG catalogue. */
 				String catFile = isStreha ? "catalogue.csv" : "catalogue-acute.csv";
@@ -248,27 +294,6 @@ public class GrouperServe {
 							+ workspace + catFile);
 					stop();
 				}
-
-				/** Load DRG logic from JSON workspace. */
-				try {
-					if(specs != null) {
-						workspace += specs;
-					}
-					ISpecification specification = SpecificationLoader.from(new File(workspace), isStreha ? Tariff.STREHA : Tariff.SWISSDRG);
-					grouperKernels.put(version, specification.getGrouper());
-					if(specification.getSupplementGrouper().isPresent()) {
-						zeKernels.put(version, specification.getSupplementGrouper().get());
-						log.info("Loaded ZE Grouper " + version);
-					} else {
-						log.info("No ZE Grouper loaded for " + version);
-					}
-				} catch (Exception e) {
-					log.error("Error while loading DRG workspace " + workspace);
-					log.error(e.getMessage());
-					e.printStackTrace();
-					stop();
-				}
-			
 			}
 		} catch (IOException e) {
 			log.error("Error during grouper server startup while loading systems: ");
