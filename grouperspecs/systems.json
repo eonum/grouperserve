@@ -161,5 +161,27 @@
         "data_year" : "2020",
         "application_year" : "2022",
 	"specs" : "specr1.1.sgs"
+    },
+    {
+        "version" : "REHA_2.0_KV2",
+        "name_de" : "ST Reha 2.0 Katalogversion 2021 / 2024",
+        "name_fr" : "ST Reha 2.0 Version de Catalogue 2 2021 / 2024",
+        "name_it" : "ST Reha 2.0 Versione Catalogo 2 2021 / 2024",
+        "icd" : "ICD10-GM-2021",
+        "chop" : "CHOP 2021",
+        "data_year" : "2021",
+        "application_year" : "2024",
+        "specs" : "specr2.0.sgs"
+    },
+    {
+        "version" : "REHA_2.0_PV1",
+        "name_de" : "ST Reha 2.0 Planungsversion 1 2022 / 2024",
+        "name_fr" : "ST Reha 2.0 Version de Planification 1 2022 / 2024",
+        "name_it" : "ST Reha 2.0 Versione Pianificazione 1 2022 / 2024",
+        "icd" : "ICD10-GM-2022",
+        "chop" : "CHOP 2022",
+        "data_year" : "2022",
+        "application_year" : "2024",
+        "specs" : "specr2.1.sgs"
     }
 ]
