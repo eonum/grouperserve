@@ -130,6 +130,17 @@
         "specs" : "spec13.2.sgs"
     },
     {
+        "version" : "V13_A",
+        "name_de" : "SwissDRG 13.0 Abrechnungsversion 2024 / 2024",
+        "name_fr" : "SwissDRG 13.0 Version de Tarification 2024 / 2024",
+        "name_it" : "SwissDRG 13.0 Versione tariffazione 2024 / 2024",
+        "icd" : "ICD10-GM-2022",
+        "chop" : "CHOP 2024",
+        "data_year" : "2024",
+        "application_year" : "2024",
+	"specs" : "spec13.3.sgs"
+    },
+    {
         "version" : "REHA_1.0_AV",
         "name_de" : "ST Reha 1.0 Abrechnungsversion 2022 / 2022",
         "name_fr" : "ST Reha 1.0 Version de Tarification 2022 / 2022",
@@ -205,5 +216,16 @@
         "data_year" : "2023",
         "application_year" : "2024",
         "specs" : "specr2.2.sgs"
+    },
+    {
+        "version" : "REHA_2.0_AV",
+        "name_de" : "ST Reha 2.0 Abrechnungsversion 2024 / 2024",
+        "name_fr" : "ST Reha 2.0 Version de Tarification 2024 / 2024",
+        "name_it" : "ST Reha 2.0 Versione tariffazione 2024 / 2024",
+        "icd" : "ICD10-GM-2022",
+        "chop" : "CHOP 2024",
+        "data_year" : "2024",
+        "application_year" : "2024",
+        "specs" : "specr2.3.sgs"
     }
 ]
