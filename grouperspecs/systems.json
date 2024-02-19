@@ -1,4 +1,94 @@
 [
+     {   
+        "version" : "V7_A",
+        "name_de" : "SwissDRG 7.0 Abrechnungsversion 2018 / 2018",
+        "name_fr" : "SwissDRG 7.0 Version de Tarification 2018 / 2018",
+        "name_it" : "SwissDRG 7.0 Versione tariffazione 2018 / 2018",
+        "icd" : "ICD10-GM-2016",
+        "chop" : "CHOP 2018",
+        "data_year" : "2018",
+        "application_year" : "2018"
+    },
+    {
+        "version" : "V7_P2",
+        "name_de" : "SwissDRG 7.0 Planungsversion 2 2017 / 2018",
+        "name_fr" : "SwissDRG 7.0 Version de Planification 2 2017 / 2018",
+        "name_it" : "SwissDRG 7.0 Versione Pianificazione 2 2017 / 2018",
+        "icd" : "ICD10-GM-2016",
+        "chop": "CHOP 2017",
+        "data_year" : "2017",
+        "application_year" : "2018"
+    },
+    {
+        "version" : "V7_P1",
+        "name_de": "SwissDRG 7.0 Planungsversion 2016 / 2018",
+        "name_fr": "SwissDRG 7.0 Version de Planification 2016 / 2018",
+        "name_it": "SwissDRG 7.0 Versione Pianificazione 2016 / 2018",
+        "icd": "ICD10-GM-2014",
+        "chop": "CHOP 2016",
+        "data_year": "2016",
+	"application_year": "2018"
+    },
+    {
+        "version" : "V8_A",
+        "name_de" : "SwissDRG 8.0 Abrechnungsversion 2019 / 2019",
+        "name_fr" : "SwissDRG 8.0 Version de Tarification 2019 / 2019",
+        "name_it" : "SwissDRG 8.0 Versione tariffazione 2019 / 2019",
+        "icd" : "ICD10-GM-2018",
+        "chop" : "CHOP 2019",
+        "data_year" : "2019",
+        "application_year" : "2019"
+    },
+    {
+        "version" : "V8_P2",
+        "name_de" : "SwissDRG 8.0 Planungsversion 2 2018 / 2019",
+        "name_fr" : "SwissDRG 8.0 Version de Planification 2 2018 / 2019",
+        "name_it" : "SwissDRG 8.0 Versione Pianificazione 2 2018 / 2019",
+        "icd" : "ICD10-GM-2016",
+        "chop" : "CHOP 2018",
+        "data_year" : "2018",
+        "application_year" : "2019"
+    },
+    {
+        "version" : "V8_P1",
+        "name_de" : "SwissDRG 8.0 Planungsversion 2017 / 2019",
+        "name_fr" : "SwissDRG 8.0 Version de Planification 2017 / 2019",
+        "name_it" : "SwissDRG 8.0 Versione Pianificazione 2017 / 2019",
+        "icd" : "ICD10-GM-2016",
+        "chop" : "CHOP 2017",
+        "data_year" : "2017",
+        "application_year" : "2019"
+    },
+    {
+        "version" : "V9_A",
+        "name_de" : "SwissDRG 9.0 Abrechnungsversion 2020 / 2020",
+        "name_fr" : "SwissDRG 9.0 Version de Tarification 2020 / 2020",
+        "name_it" : "SwissDRG 9.0 Versione tariffazione 2020 / 2020",
+        "icd" : "ICD10-GM-2018",
+        "chop" : "CHOP 2020",
+        "data_year" : "2020",
+        "application_year" : "2020"
+    },
+    {
+        "version" : "V9_P2",
+        "name_de" : "SwissDRG 9.0 Planungsversion 2 2019 / 2020",
+        "name_fr" : "SwissDRG 9.0 Version de Planification 2 2019 / 2020",
+        "name_it" : "SwissDRG 9.0 Versione Pianificazione 2 2019 / 2020",
+        "icd" : "ICD10-GM-2018",
+        "chop" : "CHOP 2019",
+        "data_year" : "2019",
+        "application_year" : "2020"
+    },
+    {
+        "version" : "V9_P1",
+        "name_de" : "SwissDRG 9.0 Planungsversion 2018 / 2020",
+        "name_fr" : "SwissDRG 9.0 Version de Planification 2018 / 2020",
+        "name_it" : "SwissDRG 9.0 Versione Pianificazione 2018 / 2020",
+        "icd" : "ICD10-GM-2016",
+        "chop" : "CHOP 2018",
+        "data_year" : "2018",
+        "application_year" : "2020"
+    },
     {
         "version" : "V10_A",
         "name_de" : "SwissDRG 10.0 Abrechnungsversion 2021 / 2021",
