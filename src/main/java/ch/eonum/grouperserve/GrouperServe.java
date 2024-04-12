@@ -45,7 +45,7 @@ public class GrouperServe {
 	private static final int HTTP_BAD_REQUEST = 400;
 	private static final int INTERNAL_SERVER_ERROR = 500;
 	private static final String GROUPERSPECS_FOLDER = "grouperspecs/";
-	private static final int MAX_GROUPERKERNELS_LOADED = 4;
+	private static final int MAX_GROUPERKERNELS_LOADED = 8;
 	private static HashMap<String, IGrouperKernel> grouperKernels;
 	private static HashMap<String, ISupplementGrouper> zeKernels;
 	private static HashMap<String, Map<String, WeightingRelation>> catalogues;
