@@ -327,5 +327,16 @@
         "data_year" : "2024",
         "application_year" : "2024",
         "specs" : "specr2.3.sgs"
+    },
+    {
+        "version" : "REHA_3.0_PV1",
+        "name_de" : "ST Reha 3.0 Planungsversion 1 2023 / 2025",
+        "name_fr" : "ST Reha 3.0 Version de Planification 1 2023 / 2025",
+        "name_it" : "ST Reha 3.0 Versione Pianificazione 1 2023 / 2025",
+        "icd" : "ICD10-GM-2022",
+        "chop" : "CHOP 2023",
+        "data_year" : "2023",
+        "application_year" : "2025",
+        "specs" : "specr3.1.sgs"
     }
 ]
