@@ -95,6 +95,14 @@ sample call using curl:
 curl --header "Accept: application/json" --data "version=V5_A&pcs=[\"11_65_0_0_M__01__00_1_0_I481-Z921-F051_8954_\", \"12_65_0_0_M__01__00_1_0_I481__\"]&pretty=true" "http://localhost:4567/group_many"
 ```
 
+## Configure as Systemd service
+```
+sudo cp grouperserve.service /etc/systemd/system/
+# adapt working directory
+sudo systemctl daemon-reload
+sudo systemctl enable grouperserve.service
+sudo systemctl start grouperserve.service
+```
 
 ## Run as Docker container
 Run the server:

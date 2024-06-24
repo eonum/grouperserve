@@ -1,0 +1,20 @@
+[Unit]
+Description=grouperserve microservice
+After=syslog.target network.target
+
+[Service]
+WorkingDirectory=/home/tim/grouperserve
+ExecStart=java -cp build/libs/grouperserve-0.2.0.jar ch.eonum.grouperserve.GrouperServe
+
+# if we crash, restart
+RestartSec=1
+Restart=always
+
+# output goes to /var/log/syslog (Ubuntu) or /var/log/messages (CentOS)
+StandardOutput=syslog
+StandardError=syslog
+
+
+[Install]
+WantedBy=default.target
+
