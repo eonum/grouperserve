@@ -241,6 +241,17 @@
 	"specs" : "spec13.3.sgs"
     },
     {
+        "version" : "V14_P1",
+        "name_de" : "SwissDRG 14.0 Planungsversion 1 2023 / 2025",
+        "name_fr" : "SwissDRG 14.0 Version de Planification 1 2023 / 2025",
+        "name_it" : "SwissDRG 14.0 Versione Pianificazione 1 2023 / 2025",
+        "icd" : "ICD10-GM-2022",
+        "chop" : "CHOP 2023",
+        "data_year" : "2023",
+        "application_year" : "2025",
+        "specs" : "spec14.1.sgs"
+    },
+    {
         "version" : "REHA_1.0_AV",
         "name_de" : "ST Reha 1.0 Abrechnungsversion 2022 / 2022",
         "name_fr" : "ST Reha 1.0 Version de Tarification 2022 / 2022",
