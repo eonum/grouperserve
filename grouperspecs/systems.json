@@ -252,6 +252,29 @@
         "specs" : "spec14.1.sgs"
     },
     {
+        "version" : "V14_P2",
+        "name_de" : "SwissDRG 14.0 Planungsversion 2 2024 / 2025",
+        "name_fr" : "SwissDRG 14.0 Version de Planification 2 2024 / 2025",
+        "name_it" : "SwissDRG 14.0 Versione Pianificazione 2 2024 / 2025",
+        "icd" : "ICD10-GM-2022",
+        "chop" : "CHOP 2024",
+        "data_year" : "2024",
+        "application_year" : "2025",
+        "specs" : "spec14.2.sgs"
+    },
+    {
+        "version" : "V14_A",
+        "name_de" : "SwissDRG 14.0 Abrechnungsversion 2025 / 2025",
+        "name_fr" : "SwissDRG 14.0 Version de Tarification 2025 / 2025",
+        "name_it" : "SwissDRG 14.0 Versione tariffazione  2025 / 2025",
+        "icd" : "ICD10-GM-2024",
+        "chop" : "CHOP 2025",
+        "data_year" : "2025",
+        "application_year" : "2025",
+        "specs" : "spec14.3.sgs"
+    },
+
+    {
         "version" : "REHA_1.0_AV",
         "name_de" : "ST Reha 1.0 Abrechnungsversion 2022 / 2022",
         "name_fr" : "ST Reha 1.0 Version de Tarification 2022 / 2022",
@@ -349,5 +372,16 @@
         "data_year" : "2023",
         "application_year" : "2025",
         "specs" : "specr3.1.sgs"
+    },
+    {
+        "version" : "REHA_3.0_AV",
+        "name_de" : "ST Reha 3.0 Abrechnungsversion 2025 / 2025",
+        "name_fr" : "ST Reha 3.0 Version de Tarification 2025 / 2025",
+        "name_it" : "ST Reha 3.0 Versione tariffazione 2025 / 2025",
+        "icd" : "ICD10-GM-2024",
+        "chop" : "CHOP 2025",
+        "data_year" : "2025",
+        "application_year" : "2025",
+        "specs" : "specr3.3.sgs"
     }
 ]
