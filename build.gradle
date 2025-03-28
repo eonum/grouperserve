@@ -1,16 +1,19 @@
-apply plugin: 'java'
-
-repositories {
-    //mavenCentral()
-    jcenter()
-    
-     flatDir {
-       dirs 'libs'
-   }
+plugins {
+    id 'java'
 }
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+repositories {
+    mavenCentral() // jcenter() is deprecated and removed in Gradle 7.0+
+    
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
 
 configurations {
     provided
@@ -24,40 +27,39 @@ sourceSets {
         compileClasspath += configurations.provided
     }
 
-
     test {
         java {
             srcDirs = ["src/test/java"]
         }
     }
-
 }
-
 
 dependencies {
-    compile 'com.sparkjava:spark-core:2.5'
-    compile 'org.slf4j:slf4j-simple:1.7.21'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.7.4'
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.7.4'
-    compile group: 'com.google.guava', name: 'guava', version: '19.0'
-    compile group: 'com.google.code.gson', name: 'gson', version: '2.6.2'
+    implementation 'com.sparkjava:spark-core:2.5'
+    implementation 'org.slf4j:slf4j-simple:1.7.21'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.7.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.7.4'
+    implementation 'com.google.guava:guava:19.0'
+    implementation 'com.google.code.gson:gson:2.6.2'
     
-    compile name: 'java-grouper-1.8.0-all'
+    implementation name: 'java-grouper-1.8.0-all'
             
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }
 
-jar {
-    baseName = 'grouperserve'
-    version =  '0.2.0'
+tasks.jar {
+    archiveBaseName.set('grouperserve')
+    archiveVersion.set('0.2.0')
     manifest {
-        attributes 'Main-Class': 'ch.eonum.grouperserve.GrouperServe'
+        attributes(
+            'Main-Class': 'ch.eonum.grouperserve.GrouperServe'
+        )
     }
-    // Build a 'fat-jar', i. e. include dependencies.
+    // Build a 'fat-jar', i.e., include dependencies.
     from {
-        (configurations.runtime).collect {
+        configurations.runtimeClasspath.collect {
             it.isDirectory() ? it : zipTree(it)
         }
     }
-
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

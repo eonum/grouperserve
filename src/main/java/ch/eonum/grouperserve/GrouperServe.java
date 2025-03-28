@@ -92,6 +92,10 @@ public class GrouperServe {
 	        	boolean isStreha = version.toUpperCase().contains("REHA");        		
 	        
 	        	IGrouperKernel grouper = getKernel(version);
+				if(grouper == null){
+	        		response.status(HTTP_BAD_REQUEST);
+	        		return "There is no grouper available for system " + version;
+	        	}
 	        	grouper.groupByReference(pc);
 	        	GrouperResult gr = pc.getGrouperResult();
 	        	Object ecw;
