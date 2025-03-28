@@ -40,6 +40,9 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import spark.Request;
 import spark.Response;
 
+import static com.rollbar.notifier.config.ConfigBuilder.withAccessToken;
+import com.rollbar.notifier.Rollbar;
+
 public class GrouperServe {
 	private final static Logger log = LoggerFactory.getLogger(GrouperServe.class);
 	private static final int HTTP_BAD_REQUEST = 400;
@@ -56,7 +59,22 @@ public class GrouperServe {
 	
 	public static void main(String[] args) throws LoadException {
 		String systems = loadSystems();
-	    
+
+		Rollbar rollbar = Rollbar.init(withAccessToken("c56c5034342a4656acc480ceb8438967")
+				.environment("qa")
+				.codeVersion("1.0.0")
+				.build());
+
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+			log.info("Shutting down GrouperServe...");
+			try {
+				rollbar.close(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			log.info("Shutdown complete.");
+		}));
+
         get("/systems", (request, response) -> {
         	response.status(200);
             response.type("application/json");
@@ -91,7 +109,7 @@ public class GrouperServe {
 	        	boolean zeGroup = "true".equals(request.queryParams("zegroup"));
 	        	boolean isStreha = version.toUpperCase().contains("REHA");        		
 	        
-	        	IGrouperKernel grouper = getKernel(version);
+	        	IGrouperKernel grouper = getKernel(version, rollbar);
 				if(grouper == null){
 	        		response.status(HTTP_BAD_REQUEST);
 	        		return "There is no grouper available for system " + version;
@@ -124,8 +142,10 @@ public class GrouperServe {
 	        	return objectToJSON(result, prettyPrint, response);
         	} catch (Exception e) {
         		log.error(e.getMessage());
+				rollbar.error(e);
         		e.printStackTrace();
-        		throw e;
+        		response.status(INTERNAL_SERVER_ERROR);
+				return e.getMessage();
         	}
         	
         });
@@ -144,7 +164,7 @@ public class GrouperServe {
 	        	}
 	        	
 	        	String version = request.queryParams("version");
-	        	IGrouperKernel grouper = getKernel(version);
+	        	IGrouperKernel grouper = getKernel(version, rollbar);
 	        	
 	        	boolean prettyPrint = "true".equals(request.queryParams("pretty"));
 	        	boolean annotate = "true".equals(request.queryParams("annotate"));
@@ -185,8 +205,10 @@ public class GrouperServe {
 	        	return objectToJSON(results, prettyPrint, response);
         	} catch (Exception e) {
         		log.error(e.getMessage());
+        		rollbar.error(e);
         		e.printStackTrace();
-        		throw e;
+        		response.status(INTERNAL_SERVER_ERROR);
+				return e.getMessage();
         	}
         });
     }
@@ -220,15 +242,15 @@ public class GrouperServe {
 		return null;
 	}
 	
-	private static IGrouperKernel getKernel(String version) {
+	private static IGrouperKernel getKernel(String version, Rollbar rollbar) {
 		if(grouperKernels.containsKey(version)) {
 			return grouperKernels.get(version);
 		}
-		loadGrouperKernel(systemsJSON.get(version));
+		loadGrouperKernel(systemsJSON.get(version), rollbar);
 		return grouperKernels.get(version);
 	}
 	
-	private static void loadGrouperKernel(Map<String, String> system) {
+	private static void loadGrouperKernel(Map<String, String> system, Rollbar rollbar) {
 		/** Load DRG logic from JSON workspace. */
 		String specs = system.get("specs");
 		String version = system.get("version");
@@ -256,7 +278,8 @@ public class GrouperServe {
 		} catch (Exception e) {
 			log.error("Error while loading DRG workspace " + workspace);
 			log.error(e.getMessage());
-			e.printStackTrace();
+			rollbar.error(e);
+        	e.printStackTrace();
 			stop();
 		}
 	}
