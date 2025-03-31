@@ -36,14 +36,13 @@ sourceSets {
 
 dependencies {
     implementation 'com.sparkjava:spark-core:2.5'
+    implementation 'org.slf4j:slf4j-simple:1.7.21'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.7.4'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.7.4'
     implementation 'com.google.guava:guava:19.0'
     implementation 'com.google.code.gson:gson:2.6.2'
     implementation("com.rollbar:rollbar-java:1.+")
-    implementation("org.slf4j:slf4j-log4j12:1.7.25")
-    implementation 'ch.qos.logback:logback-classic:1.4.11' // Use the latest version
-
+    
     
     implementation name: 'java-grouper-1.8.0-all'
             
